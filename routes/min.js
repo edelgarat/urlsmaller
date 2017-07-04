@@ -17,14 +17,18 @@ router.use('/min', function (req, res) {
                 }
                 if (!responseDB) {
                     let userURL = new base.urlModel({ url: fullURL });
-                    userURL.createSmallURL(function () {
-                        userURL.save(function (err2) {
-                            if (err2) {
-                                console.error(new Error(err2));
-                                return;
-                            }
-                            res.end("__ok" + userURL.smallURL);
-                        })
+                    userURL.createSmallURL(req.body.smallURL, function (urlUsingYet) {
+                        if (urlUsingYet) {
+                            res.end("error: small url already using yet");
+                        } else {
+                            userURL.save(function (err2) {
+                                if (err2) {
+                                    console.error(new Error(err2));
+                                    return;
+                                }
+                                res.end("__ok" + userURL.smallURL);
+                            });
+                        }    
                     });
                 } else {
                     res.end("__ok" + responseDB.smallURL);

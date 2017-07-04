@@ -19,15 +19,27 @@ let urlSchema = mongoose.Schema({
 	smallURL: String,
 	createdDate: Number
 });
-urlSchema.methods.createSmallURL = function (callback) {
-	let hash = crypto.randomBytes(10).toString("hex");
-	ret.db.collections.urls.findOne({ smallUrl: hash }, (err, col) => {
-		if (err) { console.error(new Error(err)); return; }
-		if (col) { this.createSmallURL(callback); return; }
-		this.smallURL = hash;
-		this.createdDate = +new Date();
-		callback();
-	});
+urlSchema.methods.createSmallURL = function (smallURL, callback) {
+	if (smallURL) {
+		ret.db.collections.urls.findOne({ smallURL }, (err, col) => {
+			if (err) { console.error(new Error(err)); return; }
+			if (col) { callback(true); return; }
+			this.smallURL = smallURL;
+			this.createdDate = +new Date();
+			callback();
+		});
+	} else {
+		let hash = crypto.randomBytes(5).toString("hex");
+		ret.db.collections.urls.findOne({ smallURL: hash }, (err, col) => {
+			if (err) { console.error(new Error(err)); return; }
+			if (col) { this.createSmallURL(callback); return; }
+			this.smallURL = hash;
+			this.createdDate = +new Date();
+			callback();
+		});
+	}
+
+
 };
 ret.urlModel = mongoose.model("URL", urlSchema);
 
